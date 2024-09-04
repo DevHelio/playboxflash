@@ -1,27 +1,20 @@
-//Server side van de playboxflash
-const WebSocket = require("ws");
+//Server side van de playboxflash.
+
 const { exec } = require("child_process");
 
-var args = process.argv.slice(2)[0];
-if (args === "mon") {
-  let pid = process.pid;
-  console.log(pid);
-  exec(`node ./servermon.js ${pid}`, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`Error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-}
+const WebSocket = require("ws");
+
+/* 
+Commands:
+#node server dev
+node server dev mon
+#node server prod
+*/
+
 
 const wss = new WebSocket.Server({ port: 8080 });
 wss.on("connection", function connection(ws) {
-  console.log("Client connected2");
+  console.log("Client connected");
 
   ws.on("message", function incoming(message) {
     console.log("Received: %s", message);
@@ -29,7 +22,7 @@ wss.on("connection", function connection(ws) {
     ws.send(`${message}`);
   });
 
-  // EDIT
+  // EDITS
   ws.on("close", function () {
     console.log("Client disconnected");
   });

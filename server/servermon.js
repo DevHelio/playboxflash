@@ -1,38 +1,16 @@
-var pid = process.argv.slice(2)[0];
+const fs = require('fs');
+const child = require('child_process');
 
-const fs = require("fs");
-const { exec } = require("child_process");
+const { exec } = require('node:child_process');
 
-const watchFile = "./server.js";
+const w = fs.watch('server.js');
+let CurrentChild = child.fork('server.js');
 
-console.log(`\n ...Watching ${watchFile} \n`);
-console.log(process.pid);
-
-fs.watch(watchFile, (eventType, fn) => {
-  if (eventType === "change") {
-    // node ./server.js
-    exec(`kill ${pid}`, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`Error: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-    });
-
-    exec(`node ${watchFile} mon`, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`Error: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-    });
-  }
+w.on('change', () => {
+	console.log("Hot-reloading console rn!");
+	
+	if (CurrentChild){
+		CurrentChild.kill();
+	}
+	CurrentChild = child.fork('server.js');
 });
